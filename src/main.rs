@@ -2,9 +2,11 @@ use std::io;
 
 fn main() -> std::io::Result<()> {
     println!("Enter the string to be converted: ");
+    
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("Could not read input");
     user_input.make_ascii_uppercase();
+    
     let mut result = String::new();
     for elem in user_input.chars() {
         match elem {
