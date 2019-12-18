@@ -4,7 +4,7 @@ use morse::{encode, decode};
 fn main() -> std::io::Result<()> {
     let mut type_enc_denc = String::new();
     print!("1) Text -> morse (or)\n2) Morse -> text\n> ");
-    io::stdout().flush();
+    io::stdout().flush().unwrap();
     io::stdin().read_line(&mut type_enc_denc).expect("Could not read input");
     let type_enc_denc = type_enc_denc.trim().parse::<u8>()
         .unwrap_or_else(|err| {
@@ -17,7 +17,6 @@ fn main() -> std::io::Result<()> {
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("Could not read input");
     user_input.make_ascii_uppercase();
-<<<<<<< HEAD
     if type_enc_denc == 1 {
         match encode::encode(user_input.as_str()) {
             Ok(output) => {
@@ -39,10 +38,7 @@ fn main() -> std::io::Result<()> {
     }
 
 /*    let mut result = String::new();
-=======
-    
     let mut result = String::new();
->>>>>>> 7a66c1a3e5c00ea97d46771f6cfca6316827ea15
     for elem in user_input.chars() {
         match elem {
             'A' => result.push_str(".-"),
