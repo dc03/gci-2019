@@ -4,7 +4,7 @@ use std::convert::TryInto;
 
 fn main() -> std::io::Result<()> {
     print!("Enter the number: ");
-    io::stdout().flush();
+    io::stdout().flush().unwrap();
 
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("Could not read input");
