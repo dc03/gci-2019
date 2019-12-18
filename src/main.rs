@@ -13,9 +13,11 @@ fn main() -> std::io::Result<()> {
         });
     assert!(type_enc_denc == 1 || type_enc_denc == 2);
     println!("Enter the string to be converted: ");
+    
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("Could not read input");
     user_input.make_ascii_uppercase();
+<<<<<<< HEAD
     if type_enc_denc == 1 {
         match encode::encode(user_input.as_str()) {
             Ok(output) => {
@@ -37,6 +39,10 @@ fn main() -> std::io::Result<()> {
     }
 
 /*    let mut result = String::new();
+=======
+    
+    let mut result = String::new();
+>>>>>>> 7a66c1a3e5c00ea97d46771f6cfca6316827ea15
     for elem in user_input.chars() {
         match elem {
             'A' => result.push_str(".-"),
