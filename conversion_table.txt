@@ -1,0 +1,10 @@
+# Units must be defined in terms of base unit
+# Other names for units must be without space with comma between them
+
+base unit Metre
+Metre can be m,mtr,mtrs,Meter,meter,metre
+
+1 cm = 0.01 Metre
+1 mm = 0.001 Metre
+1 inch = 0.0254 Metre
+1 foot = 0.3048 Metre
