@@ -1,3 +1,5 @@
+/* See LICENSE for license details */
+
 # pragma once
 
 # if __cplusplus < 201703L
@@ -23,6 +25,7 @@ enum class QueryTypes
     unit_to_base,
     base_to_unit,
     base_to_base,
+    not_found,
     malformed
 };
 
@@ -94,6 +97,18 @@ auto convert(std::string &query, handlers::BaseHandler &bases,
                     value << ' ' << unit_to_name << '\n';
             }
                 break;
+            case QueryTypes::not_found:
+            {
+                if (!units.check_unit(unit_from_name) &&
+                    !bases.check_unit(unit_from_name))
+                    std::cerr << "\n---\nError: in \"" << query << "\":\n "
+                    << unit_from_name << " not found as a unit\n---\n\n";
+                if (!units.check_unit(unit_to_name) &&
+                    !bases.check_unit(unit_to_name))
+                    std::cerr << "\n---\nError: in \"" << query << "\":\n "
+                    << unit_to_name << " not found as a unit\n---\n\n";
+            }
+                break;
             case QueryTypes::malformed:
             {
                 std::cerr << "\n---\nError: " << query << ": malformed query"
@@ -101,7 +116,7 @@ auto convert(std::string &query, handlers::BaseHandler &bases,
                 << "  <value> <unit_from> \"to\" (or) \"as\" (or) \"from\""
                    " (or) \"in\" <unit_to>, where:\n"
                    "  value: value of unit\n"
-                   "  unit_from: unit to be converted from"
+                   "  unit_from: unit to be converted from\n"
                    "  unit_to: unit to be converted to\n---\n\n";
             }
                 break;
@@ -131,7 +146,7 @@ auto check_query(std::string &query, handlers::BaseHandler &bases,
     else if (bases.check_unit(unit_from_name) && bases.check_unit(unit_to_name))
         return QueryTypes::base_to_base;
     else
-        return QueryTypes::malformed;
+        return QueryTypes::not_found;
 }
 
 auto tokenise_query(std::string &query, std::string &unit_from_name, 

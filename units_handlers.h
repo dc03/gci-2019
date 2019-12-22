@@ -1,3 +1,5 @@
+/* See LICENSE for license details */
+
 # pragma once
 
 # if __cplusplus < 201703L

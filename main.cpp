@@ -1,3 +1,5 @@
+/* See LICENSE for license details */
+
 #include <bits/stdc++.h>
 #include <cstring>
 #include <stdexcept>
@@ -16,7 +18,7 @@ auto main() -> int32_t
     while (true)
     {
         std::string query;
-        std::cout << "Enter the query:\n";
+        std::cout << "\nEnter the query:\n";
         std::getline(std::cin, query);
         if (query == "exit")
             break;

@@ -1,3 +1,5 @@
+/* See LICENSE for license details */
+
 # pragma once
 
 # if __cplusplus < 201703L
@@ -57,11 +59,11 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
                     << file_name  << ":" << line_number << ": " << line 
                     << "\nSyntax must be \"base\" \"unit\" <unit_name>"
                     << "\n where <unit_name> is the name of a base unit\n"
-                    << "---\n";
+                    << "---\n\n";
                     std::exit(-1);
                 }
                 catch (const std::exception &e)
-                { std::cerr << "\nError: " << e.what() << "\n---\n"; }
+                { std::cerr << "\nError: " << e.what() << "\n---\n\n"; }
                 break;
 
             case 2: // unit name definitions
@@ -71,16 +73,16 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
                 {
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line
-                    << "\nUnknown / incorrect syntax\n---\n";
+                    << "\nUnknown / incorrect syntax\n---\n\n";
                 }
                 catch (const std::invalid_argument &e)
                 {
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line 
-                    << "\nUnknown unit\n---\n";
+                    << "\nUnknown unit\n---\n\n";
                 }
                 catch (const std::exception &e)
-                { std::cerr << "\nError: " << e.what() << "\n---\n"; }
+                { std::cerr << "\nError: " << e.what() << "\n---\n\n"; }
                 break;
 
             case 3: // unit values definition
@@ -90,21 +92,21 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
                 {
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line << 
-                    "\n---\n";
+                    "\n---\n\n";
                 }
                 catch (const std::invalid_argument &e)
                 {
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line
-                    << "\nUnknown base unit\n---\n"; 
+                    << "\nUnknown base unit\n---\n\n"; 
                 }
                 catch (const std::exception &e)
-                { std::cerr << "\nError: " << e.what() << "\n---\n"; }
+                { std::cerr << "\nError: " << e.what() << "\n---\n\n"; }
                 break;
 
             default: // anything else
                 std::cerr << "\nError:\n" << file_name << ":" << line_number <<
-                ": " << line << "\nUnkown syntax\n---\n";
+                ": " << line << "\nUnkown syntax\n---\n\n";
                 break;
         }
         line_number += 1;
