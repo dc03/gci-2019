@@ -10,153 +10,102 @@
 #   define __FILE_PARSE_H
 
 #include <bits/stdc++.h>
-#include <algorithm>
-#include <set>
 #include <vector>
 #include <cstring>
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
+#include <functional>
+#include <process.h>
 
-#include ".\units.h"
+#include ".\units_handlers.h"
 
-auto parse_file(std::string&) -> bool;
+auto parse_file(std::string&, handlers::BaseHandler&, 
+    handlers::UnitHandler&) -> void;
 auto line_type(std::string&) -> int64_t;
 auto is_num(std::string&) -> bool;
 auto is_name(std::string&) -> bool;
 auto tokenise_base(std::string&, handlers::BaseHandler&) -> void;
+auto tokenise_names(std::string&, handlers::BaseHandler&,
+    handlers::UnitHandler&) -> void;
+auto set_values(std::string&, handlers::BaseHandler&, 
+    handlers::UnitHandler&) -> void;
 
-namespace handlers
-{
-    class BaseHandler
-    {
-        std::vector<std::shared_ptr<unit::BaseUnit>> m_base_units;
-
-    public:
-        BaseHandler() {}
-        BaseHandler(BaseHandler&) = delete;
-        BaseHandler& operator = (BaseHandler&) = delete;
-        auto add_base(std::string) -> void;
-        auto update_base(std::string, std::string) -> void;
-        auto get_base(std::string) -> std::shared_ptr<unit::BaseUnit>&;
-    };
-
-    class UnitHandler
-    {
-        std::vector<std::shared_ptr<unit::Unit>> m_units;
-
-    public:
-        UnitHandler() {}
-        UnitHandler(UnitHandler&) = delete;
-        UnitHandler& operator = (UnitHandler&) = delete;
-        auto add_unit(std::string, BaseHandler&, double, std::string) -> void;
-        auto update_unit(std::string, std::string) -> void;
-        auto get_unit(std::string) -> std::shared_ptr<unit::Unit>&;
-    };
-
-    auto BaseHandler::add_base(std::string unit_name) -> void
-    {
-        auto ptr = std::make_shared<unit::BaseUnit>(unit_name);
-        this -> m_base_units.push_back(ptr);
-    }
-
-    auto BaseHandler::update_base(std::string unit_name, std::string names)
-    -> void
-    {
-        for (auto &x: this -> m_base_units)
-            if (x -> get_name() == unit_name)
-            {
-                x -> set_names(names);
-                break;
-            }
-    }
-
-    auto BaseHandler::get_base(std::string unit_name) 
-    -> std::shared_ptr<unit::BaseUnit>&
-    {
-        for (auto &x: this -> m_base_units)
-            if (x -> get_name() == unit_name)
-                return x;
-            else
-                for (auto &names: x -> get_names())
-                    if (!std::strcmp(names.c_str(), unit_name.c_str()))
-                        return x;
-        throw std::invalid_argument{ "Base unit not found" }; // not found
-    }
-
-    auto UnitHandler::add_unit(std::string base_unit, BaseHandler &bases,
-        double value_in_base, std::string unit_name) -> void
-    {
-        try
-        {
-            auto base{ bases.get_base(base_unit) };
-            auto unit = std::make_shared<unit::Unit>(base, value_in_base,
-                unit_name);
-            this -> m_units.push_back(unit);
-        }
-        catch (const std::invalid_argument &e)
-        {
-            std::cerr << "Error: " << e.what() << "\nUnknown base unit: "
-            << base_unit;
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-    }
-
-    auto UnitHandler::update_unit(std::string unit_name, std::string names)
-        -> void
-    {
-        for (auto &x: this -> m_units)
-            if (x -> get_name() == names)
-            {
-                x -> set_names(names);
-                break;
-            }
-    }
-
-    auto UnitHandler::get_unit(std::string unit_name) 
-    -> std::shared_ptr<unit::Unit>&
-    {
-        for (auto &x: this -> m_units)
-            if (x -> get_name() == unit_name)
-                return x;
-            else
-                for (auto &name: x -> get_names())
-                    if (name == unit_name)
-                        return x;
-        throw std::invalid_argument{ "Unit not found" };
-    }
-};
-
-auto parse_file(std::string &file_name) -> bool
+auto parse_file(std::string &file_name, handlers::BaseHandler &bases, 
+    handlers::UnitHandler &units) -> void 
 {
     std::ifstream fin(file_name.c_str(), std::ios::in);
-    handlers::BaseHandler bases;
-    handlers::UnitHandler units;
+    if (!fin)
+        throw std::runtime_error{ "File not found / doesn't exist" };
     auto line_number{ 1 };
     while (!fin.eof())
     {
         std::string line{};
         std::getline(fin, line);
+        // std::cout << line << '\n';
         switch (line_type(line))
         {
             case 0: // comment
+                break;
+
             case 1: // base unit definition
                 try
                 { tokenise_base(line, bases); }
-                catch (const std::invalid_argument &e)
+                catch (const std::runtime_error &e)
                 {
-                    std::cerr << "Error: " << e.what() << '\n' << file_name 
-                    << ":" << line_number << ": " << line 
-                    << "\nSyntax must be \"base\" \"unit\" <unit_name>";
+                    std::cerr << "\n---\nError: " << e.what() << '\n' 
+                    << file_name  << ":" << line_number << ": " << line 
+                    << "\nSyntax must be \"base\" \"unit\" <unit_name>"
+                    << "\n where <unit_name> is the name of a base unit\n"
+                    << "---\n";
+                    std::exit(-1);
                 }
                 catch (const std::exception &e)
-                { std::cerr << "Error: " << e.what(); }
+                { std::cerr << "\nError: " << e.what() << "\n---\n"; }
+                break;
+
             case 2: // unit name definitions
+                try
+                { tokenise_names(line, bases, units); }
+                catch (const std::runtime_error &e)
+                {
+                    std::cerr << "\n---\nError: " << e.what() << '\n' 
+                    << file_name << ":" << line_number << ": " << line
+                    << "\nUnknown / incorrect syntax\n---\n";
+                }
+                catch (const std::invalid_argument &e)
+                {
+                    std::cerr << "\n---\nError: " << e.what() << '\n' 
+                    << file_name << ":" << line_number << ": " << line 
+                    << "\nUnknown unit\n---\n";
+                }
+                catch (const std::exception &e)
+                { std::cerr << "\nError: " << e.what() << "\n---\n"; }
+                break;
+
             case 3: // unit values definition
+                try
+                { set_values(line, bases, units); }
+                catch (const std::runtime_error &e)
+                {
+                    std::cerr << "\n---\nError: " << e.what() << '\n' 
+                    << file_name << ":" << line_number << ": " << line << 
+                    "\n---\n";
+                }
+                catch (const std::invalid_argument &e)
+                {
+                    std::cerr << "\n---\nError: " << e.what() << '\n' 
+                    << file_name << ":" << line_number << ": " << line
+                    << "\nUnknown base unit\n---\n"; 
+                }
+                catch (const std::exception &e)
+                { std::cerr << "\nError: " << e.what() << "\n---\n"; }
+                break;
+
             default: // anything else
+                std::cerr << "\nError:\n" << file_name << ":" << line_number <<
+                ": " << line << "\nUnkown syntax\n---\n";
+                break;
         }
         line_number += 1;
     }
@@ -164,12 +113,14 @@ auto parse_file(std::string &file_name) -> bool
 
 auto line_type(std::string &line) -> int64_t
 {
+    if (!line.size())
+        return 0;
     std::stringstream stream{ line };
     std::string token;
     stream >> token;
-    if (!std::strcmp(token.c_str(), "#"))
+    if (token == "#" || token.at(0) == '#')
         return 0;
-    else if (!std::strcmp(token.c_str(), "base"))
+    else if (token == "base")
         return 1;
     else if (is_num(token))
         return 3;
@@ -188,12 +139,7 @@ auto is_num(std::string &value) -> bool
 }
 
 auto is_name(std::string &name) -> bool
-{
-    for (const auto &x: name)
-        if (x >= '0' && x <= '9')
-            return false;
-    return true;
-}
+{ return !is_num(name); }
 
 auto tokenise_base(std::string &line, handlers::BaseHandler &base_units)
     -> void
@@ -201,13 +147,70 @@ auto tokenise_base(std::string &line, handlers::BaseHandler &base_units)
     std::stringstream stream{ line };
     std::string base, unit, unit_name;
     stream >> base >> unit >> unit_name;
-    if (!std::strcmp(base.c_str(), "base") && 
-        !std::strcmp(unit.c_str(), "unit"))
-        base_units.add_base(unit_name);
+    if ((base == "base") && (unit == "unit"))
+        base_units.add_base(unit_name, 1);
     else
-        throw std::invalid_argument{ "Wrong line syntax" };
+        throw std::runtime_error{ "Unknown / incorrect syntax" };
 }
 
-# endif
+auto tokenise_names(std::string &line, handlers::BaseHandler &bases,
+    handlers::UnitHandler &units) -> void
+{
+    std::stringstream stream{ line };
+    std::string unit_name, can, be, unit_names;
+    stream >> unit_name >> can >> be >> unit_names;
+    if (can != "can" && be != "be")
+        throw std::runtime_error{ "Unknown / incorrect syntax" };
+    try
+    {
+        auto base = bases.get_base(unit_name);
+        base -> set_names(unit_names);
+    }
+    catch (const std::invalid_argument &)
+    {
+        try
+        {
+            auto unit = units.get_unit(unit_name);
+            unit -> set_names(unit_names);
+        }
+        catch (const std::invalid_argument &e)
+        { throw e; }
+        catch (const std::exception &e)
+        { std::cerr << e.what() << '\n'; }
+    }
+    catch (const std::exception &e)
+    { std::cerr << e.what() << '\n'; }
+    
+}
 
-# endif
+auto set_values(std::string &line, handlers::BaseHandler &bases,
+    handlers::UnitHandler &units) -> void
+{
+    std::stringstream stream{ line };
+    std::string unit_name, equal, base_name;
+    double value, value_in_base;
+    stream >> value >> unit_name >> equal >> value_in_base >> base_name;
+    if (equal != "=")
+        throw std::runtime_error{ "Unknown / incorrect syntax" };
+    try
+    {
+        auto base{ bases.get_base(base_name) };
+        try
+        { auto unit{ units.get_unit(unit_name) }; }
+        catch (const std::invalid_argument &e)
+        { 
+            units.add_unit(base_name, bases, (value_in_base / value), 
+                unit_name); 
+        }
+        catch (const std::exception &e)
+        { std::cerr << e.what() << '\n'; }
+    }
+    catch (std::invalid_argument &e)
+    { throw e; }
+    catch (const std::exception& e)
+    { std::cerr << e.what() << '\n'; }
+}
+
+# endif // parse.h
+
+# endif // check for c++ standard
