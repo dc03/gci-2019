@@ -201,23 +201,44 @@ auto set_values(std::string &line, handlers::BaseHandler &bases,
     stream >> value >> unit_name >> equal >> value_in_base >> base_name;
     if (equal != "=")
         throw std::runtime_error{ "Unknown / incorrect syntax" };
-    try
+    else if (bases.check_unit(base_name))
     {
-        auto base{ bases.get_base(base_name) };
-        try
-        { auto unit{ units.get_unit(unit_name) }; }
-        catch (const std::invalid_argument &e)
-        { 
+        if (!units.check_unit(unit_name))
             units.add_unit(base_name, bases, (value_in_base / value), 
-                unit_name); 
-        }
-        catch (const std::exception &e)
-        { std::cerr << e.what() << '\n'; }
+                unit_name);
+        else
+            throw std::invalid_argument{ "Cannot redefine a defined unit"};
     }
-    catch (std::invalid_argument &e)
-    { throw e; }
-    catch (const std::exception& e)
-    { std::cerr << e.what() << '\n'; }
+    else if (units.check_unit(base_name))
+    {
+        if (!units.check_unit(unit_name))
+        {
+            auto unit_as_base{ units.get_unit(base_name) };
+            auto base{ unit_as_base -> get_base() -> get_name() };
+            auto unit_val_in_base{ unit_as_base -> get_val_as_base() };
+            units.add_unit(base, bases, (unit_val_in_base * value_in_base / value), unit_name);
+        }
+        else
+            throw std::invalid_argument{ "Cannot redefine a defined unit" };
+        
+    }
+    // try
+    // {
+    //     auto base{ bases.get_base(base_name) };
+    //     try
+    //     { auto unit{ units.get_unit(unit_name) }; }
+    //     catch (const std::invalid_argument &e)
+    //     { 
+    //         units.add_unit(base_name, bases, (value_in_base / value), 
+    //             unit_name); 
+    //     }
+    //     catch (const std::exception &e)
+    //     { std::cerr << e.what() << '\n'; }
+    // }
+    // catch (std::invalid_argument &e)
+    // { throw e; }
+    // catch (const std::exception& e)
+    // { std::cerr << e.what() << '\n'; }
 }
 
 # endif // parse.h
