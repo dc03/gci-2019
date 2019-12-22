@@ -40,6 +40,7 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
     if (!fin)
         throw std::runtime_error{ "File not found / doesn't exist" };
     auto line_number{ 1 };
+    auto has_err{ false };
     while (!fin.eof())
     {
         std::string line{};
@@ -60,7 +61,7 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
                     << "\nSyntax must be \"base\" \"unit\" <unit_name>"
                     << "\n where <unit_name> is the name of a base unit\n"
                     << "---\n\n";
-                    std::exit(-1);
+                    has_err = true;
                 }
                 catch (const std::exception &e)
                 { std::cerr << "\nError: " << e.what() << "\n---\n\n"; }
@@ -74,12 +75,14 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line
                     << "\nUnknown / incorrect syntax\n---\n\n";
+                    has_err = true;
                 }
                 catch (const std::invalid_argument &e)
                 {
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line 
                     << "\nUnknown unit\n---\n\n";
+                    has_err = true;
                 }
                 catch (const std::exception &e)
                 { std::cerr << "\nError: " << e.what() << "\n---\n\n"; }
@@ -93,12 +96,14 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line << 
                     "\n---\n\n";
+                    has_err = true;
                 }
                 catch (const std::invalid_argument &e)
                 {
                     std::cerr << "\n---\nError: " << e.what() << '\n' 
                     << file_name << ":" << line_number << ": " << line
-                    << "\nUnknown base unit\n---\n\n"; 
+                    << "\nUnknown base unit\n---\n\n";
+                    has_err = true;
                 }
                 catch (const std::exception &e)
                 { std::cerr << "\nError: " << e.what() << "\n---\n\n"; }
@@ -111,6 +116,8 @@ auto parse_file(std::string &file_name, handlers::BaseHandler &bases,
         }
         line_number += 1;
     }
+    if (has_err)
+        std::exit(-1);
 }
 
 auto line_type(std::string &line) -> int64_t

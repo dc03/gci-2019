@@ -1,5 +1,7 @@
 /* See LICENSE for license details */
 
+// v0.1.1
+
 #include <bits/stdc++.h>
 #include <cstring>
 #include <stdexcept>
@@ -14,7 +16,13 @@ auto main() -> int32_t
     std::string file_name{ "conversion_table.txt" };
     // std::cout << "Enter the file name: ";
     // std::getline(std::cin, file_name);
-    init_convert(file_name, bases, units);
+    try
+    { init_convert(file_name, bases, units); }
+    catch (const std::runtime_error &e)
+    { 
+        std::cerr << "\n---\nError: " << e.what() << '\n';
+        return 0;
+    }
     while (true)
     {
         std::string query;
@@ -25,9 +33,10 @@ auto main() -> int32_t
         try
         { convert(query, bases, units); }
         catch (std::invalid_argument &e)
-        { std::cerr << "\n---\nError: " << query << "\n : " << e.what(); }
+        { std::cerr << "\n---\nError: " << query << "\n : " << e.what() 
+            << "\n---\n"; }
         catch (const std::exception &e)
-        { std::cerr << "\nError: " << e.what() << "\n---\n"; }
+        { std::cerr << "\n---\nError: " << e.what() << "\n---\n"; }
     }
     return 0;
 }
