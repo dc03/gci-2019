@@ -220,7 +220,6 @@ auto set_values(std::string &line, handlers::BaseHandler &bases,
         }
         else
             throw std::invalid_argument{ "Cannot redefine a defined unit" };
-        
     }
     // try
     // {

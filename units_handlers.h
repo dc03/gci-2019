@@ -35,9 +35,9 @@ namespace unit
 
     class Unit
     {
-        std::string m_name{};
         std::shared_ptr<BaseUnit> m_base_unit{ nullptr };
-        double m_value_in_base{ 0 };
+        double m_value_in_base;
+        std::string m_name{};
         std::vector<std::string> m_names{};
     public:
         Unit(std::shared_ptr<BaseUnit>, double, std::string);
@@ -102,7 +102,7 @@ namespace unit
 
     auto Unit::get_names() -> std::vector<std::string>
     { return this -> m_names; }
-};
+}
 
 namespace handlers
 {
@@ -232,7 +232,7 @@ namespace handlers
                         return true;
         return false;
     }
-};
+}
 
 # endif // file_parser.h
 
