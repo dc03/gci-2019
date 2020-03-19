@@ -1,0 +1,45 @@
+# See LICENSE for license details
+
+# Units must be defined before other units can be defined in terms of those
+# units
+# Other names for units must be without space with comma between them
+
+base unit Metre
+Metre can be m,mtr,mtrs,Meter,meter,metre
+
+100 cm = 1 Metre
+10 mm = 1 cm
+1 inch = 2.54 cm
+1 foot = 12 inch
+
+cm can be centimeter,centimetre,centimeters,centimetres,cms
+mm can be millimeter,millimetre,millimeters,millimetres,mms
+inch can be in,inches
+foot can be feet,ft,fts
+
+base unit Second
+Second can be s,second,seconds
+
+1 min = 60 second
+1 hour = 60 min
+1 day = 24 hour
+1 week = 7 day
+1 month = 31 day
+1 year = 12 month
+
+hour can be h,hr,hours,Hour
+min can be minute,mins,Min
+day can be days,Day
+
+base unit gram
+gram can be grams,g,gm,gms
+
+1 kg = 1000 g
+1 ton = 1000 kg
+1000 mg = 1 g
+1 lb = 0.45359 kg
+
+kg can be kilograms,kgs,kilogram
+ton can be tonne,tn,tns,tonnes,tons
+mg can be milligram,mgs,milligrams
+lb can be pounds,pound,lbs
